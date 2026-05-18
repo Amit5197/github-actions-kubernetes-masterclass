@@ -1,49 +1,21 @@
-name: Build and Push Docker Image
+name: Debug Repository Structure
 
 on:
   push:
     branches: [ "main", "master" ]
 
 jobs:
-  build-and-push:
+  debug-folders:
     runs-on: ubuntu-latest
-
     steps:
-      # Step 1: Clone the repository code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Set up Go environment
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21'
-          cache: true
-
-      # Step 3: Fix dependencies inside the subfolder
-      - name: Tidy Go Modules
-        run: go mod tidy
-        working-directory: ./skillpulse  # 👈 Tells Go where your go.mod is
-
-      # Step 4: Run tests inside the subfolder
-      - name: Run tests
-        run: go test ./...
-        working-directory: ./skillpulse  # 👈 Tells Go where tests are
-
-      # Step 5: Log into Docker Hub securely
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      # Step 6: Build the Docker image pointing to the subfolder
-      - name: Build and Push Docker Image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./skillpulse          # 👈 Tells Docker where your code/Dockerfile is
-          file: ./skillpulse/Dockerfile   # 👈 Path to your Dockerfile
-          push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/skillpulse:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/skillpulse:${{ github.sha }}
+      - name: List all files and directories
+        run: |
+          echo "=== CURRENT DIRECTORY ==="
+          pwd
+          echo "=== ROOT FOLDER CONTENTS ==="
+          ls -la
+          echo "=== FINDING GO.MOD FILE ==="
+          find . -name "go.mod"
