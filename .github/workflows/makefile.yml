@@ -11,24 +11,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout your repository
+      # 1. Pull the code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Set up the Go environment on the runner
+      # 2. Set up Go environment
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.21' # You can change this to your specific Go version
+          go-version: '1.21'
 
-      # Step 3: Fix the missing dependencies (This resolves your error!)
-      - name: Tidy Go Modules
-        run: go mod tidy
-
-      # Step 4: Run your tests successfully
-      - name: Run Go test
-        run: go test ./...
-
-      # Step 5: Run Go vet
-      - name: Run Go vet
-        run: go vet ./...
+      # 3. Clean dependencies AND run tests inside the correct folder
+      - name: Tidy, Test, and Vet
+        run: |
+          go mod tidy
+          go test ./...
+          go vet ./...
+        working-directory: ./skillpulse  # <--- CHANGE THIS to your exact Go folder name
