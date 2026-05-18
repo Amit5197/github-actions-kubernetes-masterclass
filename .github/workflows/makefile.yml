@@ -9,24 +9,24 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    
+    # ⬇️ ADD THIS BLOCK TO TELL THE RUNNER WHERE YOUR FILES ARE ⬇️
+    defaults:
+      run:
+        working-directory: ./your-subfolder-name   # Replace with your actual folder name
 
     steps:
-      # Step 1: Clone the repository into the runner
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Ensure the configure script is executable
       - name: Make configure executable
         run: chmod +x ./configure
 
-      # Step 3: Run the configuration script
       - name: Run configure
         run: ./configure
 
-      # Step 4: Compile the code using your Makefile
       - name: Run Makefile build
         run: make
 
-      # Step 5: (Optional) Run tests if your Makefile has a test target
       - name: Run tests
         run: make test
