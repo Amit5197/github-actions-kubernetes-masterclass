@@ -1,18 +1,48 @@
-name: Docker Image CI
+name: Build and Push Docker Image
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
 
 jobs:
-
-  build:
-
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      # Step 1: Clone the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Go environment
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+          cache: true
+
+      # Step 3: Crucial - Fix dependencies before building the Docker context
+      - name: Tidy Go Modules
+        run: go mod tidy
+
+      # Step 4: Run tests to make sure image doesn't build on broken code
+      - name: Run tests
+        run: go test ./...
+
+      # Step 5: Log into Docker Hub securely using GitHub Secrets
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Step 6: Build the Docker image and push it to Docker Hub
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          # Replace 'your-dockerhub-username' and 'skillpulse' with your actual setup
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/skillpulse:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/skillpulse:${{ github.sha }}
