@@ -1,4 +1,4 @@
-name: Build and Test
+name: Build and Test Go Application
 
 on:
   push:
@@ -11,9 +11,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout your repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # This runs standard 'make' directly in your root folder
-      - name: Run Makefile build
-        run: make
+      # Step 2: Set up the Go environment on the runner
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21' # You can change this to your specific Go version
+
+      # Step 3: Fix the missing dependencies (This resolves your error!)
+      - name: Tidy Go Modules
+        run: go mod tidy
+
+      # Step 4: Run your tests successfully
+      - name: Run Go test
+        run: go test ./...
+
+      # Step 5: Run Go vet
+      - name: Run Go vet
+        run: go vet ./...
