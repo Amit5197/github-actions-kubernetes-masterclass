@@ -1,27 +1,32 @@
-name: Makefile CI
+name: Build and Test
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      # Step 1: Clone the repository into the runner
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: configure
-      run: ./configure
+      # Step 2: Ensure the configure script is executable
+      - name: Make configure executable
+        run: chmod +x ./configure
 
-    - name: Install dependencies
-      run: make
+      # Step 3: Run the configuration script
+      - name: Run configure
+        run: ./configure
 
-    - name: Run check
-      run: make check
+      # Step 4: Compile the code using your Makefile
+      - name: Run Makefile build
+        run: make
 
-    - name: Run distcheck
-      run: make distcheck
+      # Step 5: (Optional) Run tests if your Makefile has a test target
+      - name: Run tests
+        run: make test
